@@ -8,4 +8,5 @@ Switch:
   - When a MAC address is unknown but are in different networks, how does a sender find a destination node.
   - Even if it does know the destination MAC address but the node belongs to a different network, how does it find the destination node (shouldn't it have the gateway MAC address?);
   - Is it because the mast is periodic that there is no need to configure a watchdog?
-
+  - Pratica: diagrama temporal, quando o Ciclo de Rede começa, como a memoria partilhada vai buscar os inputs (que instantes) e envia os outputs também?
+ 
