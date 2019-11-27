@@ -41,8 +41,6 @@ Switch:
 
   - ciclico, aciclico, isocrono, periodico.i
 
-  - Pq é que o CAN nao pode usar as tecnologias mais recented do physical layer: e.g 10GbaseT  - ciclico, aciclico, isocrono, periodico.i
-
   - Pq é que o CAN nao pode usar as tecnologias mais recented do physical layer: e.g 10GbaseT?
 
   - Sincrono e asincrono varia dependendo do conteto? (envio de data, envio de pacotes)
@@ -51,4 +49,16 @@ Switch:
 
   - 4 entradas digitais, ocupam 4 words/1 word/4 registos?
 
-  - CAN: quando colisão não ocorre comparando COB-ID, o que a sucede?
+  - CAN: quando colisão não ocorre comparando COB-ID, o que a sucede? nao chega a acontecer devido ao limite maximo de tamanho?
+
+  - Pergunta 2 pratico...
+
+  - pergunta 9, pratico:ciclo TCR
+
+  - pergunta 11, pratico
+
+  - pergunta 14, pratico
+
+  - pratico, MODBUS: o PLC no nosso caso era sempre o cliente, mas podia ser servidor tb certo?
+
+  - What is isochronous? powerlink, CAN aciclico.
