@@ -62,3 +62,17 @@ Switch:
   - pratico, MODBUS: o PLC no nosso caso era sempre o cliente, mas podia ser servidor tb certo?
 
   - What is isochronous? powerlink, CAN aciclico.
+
+
+  //////////////////////////////////////////////////////////////////////////////
+  //////////////////////////////////////////////////////////////////////////////
+  //////////////////////////////////////////////////////////////////////////////
+  //////////////////////////////////////////////////////////////////////////////
+  //////////////////////////////////////////////////////////////////////////////
+
+
+  - CANopen: Apesar deste poder ter varios mestres (decentralized) o SYNC so pode ser enviado por um dos mestres, certo (COB-ID unico para o codiog SYNC)?
+
+  - numero de bits transmitidos numa trama CAN varia com o valor e com a dimensão do campo de dados?
+
+  - Why is there a parameter in the ethernet frame called Type/Size? If it is type, i've seen that it shows the ip address in ipv6 or ipv4 standards.
