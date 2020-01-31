@@ -135,25 +135,29 @@ uint16_t Receive_Modbus_request(int fd, uint8_t **apdu, uint8_t *apdu_len, int *
 }
 
 void Send_Modbus_response(uint16_t t_id, uint8_t *r_apdu, uint8_t r_apdu_len, int comm_socket) {
+    //pdu to be sent back to client
     uint8_t *pdu = (uint8_t*)calloc(r_apdu_len+7, sizeof(uint8_t));
-
+        //MBAP
     register_to_octet(pdu[0], pdu[1], t_id);
     register_to_octet(pdu[2], pdu[3], 0x0000);
     register_to_octet(pdu[4], pdu[5], r_apdu_len+1);
     pdu[6] = 0x00;
-
+        //APDU
     for(int i=0; i<r_apdu_len; i++) {
         pdu[i+7] = r_apdu[i];
     }
 
+    //sending message through comm_socket
+    int len_send = send(comm_socket, pdu, r_apdu_len+7, 0);
+    if(len_send<0) printf("Error has occurred\n");
+    else printf("sent %d bytes\n", len_send);
+
+    //Server response to request
+    printf("Response to client request:");
     for(int i=0; i<5+7; i++) {
         printf(" %x ", pdu[i]);
     }
     printf("\n");
-
-    int len_send = send(comm_socket, pdu, r_apdu_len+7, 0);
-    if(len_send<0) printf("Error has occurred\n");
-    else printf("sent %d bytes\n", len_send);
 }
 
 
