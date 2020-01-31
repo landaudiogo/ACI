@@ -29,11 +29,11 @@ void Read_multiple_regs(char *server_add, uint16_t port, uint16_t st_r, uint16_t
 
 }
 
-uint16_t Get_request(int fd, uint8_t *op, uint16_t *n, uint16_t *st, uint16_t **val, struct sockaddr_in *remote, int *comm_socket) {
+uint16_t Get_request(int fd, uint8_t *op, uint16_t *n, uint16_t *st, uint16_t **val, int *comm_socket) {
     uint8_t *apdu;
     uint8_t apdu_len;
 
-    uint16_t transaction_identifier = Receive_Modbus_request(fd, &apdu, &apdu_len, remote, comm_socket);
+    uint16_t transaction_identifier = Receive_Modbus_request(fd, &apdu, &apdu_len, comm_socket);
 
     printf("Message received:\n");
     for(int i=0; i<apdu_len; i++) {
@@ -69,7 +69,7 @@ void Send_response(uint16_t t_id, uint8_t op, uint16_t st, uint16_t n, uint16_t 
             }
             printf("\n");
 
-            Send_Modbus_response(t_id, apdu, 5, remote, comm_socket);
+            Send_Modbus_response(t_id, apdu, 5, comm_socket);
         }
     }
     else {

@@ -86,15 +86,26 @@ int Send_Modbus_request(char *server_add, uint16_t port, uint8_t *apdu, uint8_t 
 /****************************************************************************/
 
 
-uint16_t Receive_Modbus_request(int fd, uint8_t **apdu, uint8_t *apdu_len, struct sockaddr_in *remote, int *comm_socket) {
+uint16_t Receive_Modbus_request(int fd, uint8_t **apdu, uint8_t *apdu_len, int *comm_socket) {
+    
+    //server buffer to read stream
     uint8_t buffer[256];
 
+    //remote host
+    struct sockaddr_in remote;
     socklen_t remote_addlen = sizeof(remote);   
 
-    *comm_socket = accept(fd, (struct sockaddr *)remote, &remote_addlen);
+    //communication socket used by server for the client
+    *comm_socket = accept(fd, (struct sockaddr *)&remote, &remote_addlen);
+    if(*comm_socket<0) printf("error creating socket to communicate between server and client\n");
 
     int len_recv = recv(*comm_socket, buffer, 256, 0);
-    printf("Received %d octets\n", len_recv);
+    if(len_recv<0) {
+        printf("error receiving message\n");
+    }
+    else {
+        printf("Received %d octets\n", len_recv);
+    }
 
     printf("Received message:\n");
     for(int i=0; i<len_recv; i++) {
@@ -102,20 +113,18 @@ uint16_t Receive_Modbus_request(int fd, uint8_t **apdu, uint8_t *apdu_len, struc
     }
     printf("\n");
 
+    //writing relevant data from buffe 
     uint16_t transaction_identifier, protocol, n_bytes;
     uint8_t unit_id;
-    
+        //MBAP
     octet_to_register(buffer[0], buffer[1], transaction_identifier);
     octet_to_register(buffer[2], buffer[3], protocol);
     octet_to_register(buffer[4], buffer[5], n_bytes);
     unit_id = buffer[6];
-    
-    printf("apdu length: %x\n", n_bytes-1);
-
+        //APDU 
     uint8_t *aux = (uint8_t *)calloc(n_bytes-1, sizeof(uint8_t));
     for(int i=0; i<n_bytes-1; i++) {
         aux[i] = buffer[i+7];
-        printf("%d: %x\n", i, aux[i]);
     }
     printf("\n");
 
@@ -125,7 +134,7 @@ uint16_t Receive_Modbus_request(int fd, uint8_t **apdu, uint8_t *apdu_len, struc
     return transaction_identifier;
 }
 
-void Send_Modbus_response(uint16_t t_id, uint8_t *r_apdu, uint8_t r_apdu_len, struct sockaddr_in remote, int comm_socket) {
+void Send_Modbus_response(uint16_t t_id, uint8_t *r_apdu, uint8_t r_apdu_len, int comm_socket) {
     uint8_t *pdu = (uint8_t*)calloc(r_apdu_len+7, sizeof(uint8_t));
 
     register_to_octet(pdu[0], pdu[1], t_id);
