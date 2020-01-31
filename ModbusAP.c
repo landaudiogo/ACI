@@ -77,8 +77,11 @@ void Send_response(uint16_t t_id, uint8_t op, uint16_t st, uint16_t n, uint16_t 
     }
 }
 
-void server_connect(int *fd) {
+int server_connect(int *fd) {
     *fd = socket(PF_INET, SOCK_STREAM, IPPROTO_TCP); //creates a local socket
+    if(*fd < 0) {
+        printf("failed to create socket\n");
+    }
     
     struct sockaddr_in local;
     socklen_t local_addlen = sizeof(local);
@@ -86,12 +89,15 @@ void server_connect(int *fd) {
     local.sin_port = htons(SERVER_PORT);
     inet_aton(server_ip, &local.sin_addr);
 
-    bind(*fd, (struct sockaddr *)&local, local_addlen);
-    printf("listening...\n");
-    listen(*fd, 10);
-}
+    if(bind(*fd, (struct sockaddr *)&local, local_addlen) == -1) {
+        printf("failed to bind\n");
+        return -1;
+    }
+    
+    if (listen(*fd, 10) == -1) {
+        printf("error listening\n");
+        return -1;
+    }
 
-int server_close(int fd, int comm_socket) {
-    close(fd);
-    close(comm_socket);
+    return 0; //successful connection
 }

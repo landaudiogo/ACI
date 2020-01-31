@@ -11,6 +11,6 @@ void Send_response(uint16_t t_id, uint8_t op, uint16_t st, uint16_t n, uint16_t 
 
 int server_close(int *fd, int *comm_socket);
 
-void server_connect(int *fd);
+int server_connect(int *fd);
 
 #endif

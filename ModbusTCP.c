@@ -1,8 +1,18 @@
 #include "general.h"
 
+/****************************************************************************/
+/****************************************************************************/
+/***************************                 ********************************/
+/***************************   CLIENT SIDE   ********************************/
+/***************************                 ********************************/
+/****************************************************************************/
+/****************************************************************************/
+
 int Send_Modbus_request(char *server_add, uint16_t port, uint8_t *apdu, uint8_t apdu_len, uint8_t **apdu_r) {
-    uint8_t *pdu = (uint8_t *)calloc(apdu_len +7, sizeof(uint8_t));
+    //creating pdu arrays
+    uint8_t *pdu = (uint8_t *)calloc(apdu_len+7, sizeof(uint8_t));
     uint8_t *r_pdu = (uint8_t *)calloc(5+7, sizeof(uint8_t));
+    uint8_t buffer[256];
 
     //write pdu = MBAP + apdu
         //MBAP
@@ -14,7 +24,7 @@ int Send_Modbus_request(char *server_add, uint16_t port, uint8_t *apdu, uint8_t 
     for(int i=0; i<apdu_len; i++) {
         pdu[i+7] = apdu[i];
     }
-    //checking values
+    //checking written values
     printf("client sending message:\n");
     for(int i=0; i<apdu_len+7; i++) {
         if(i==7) printf("SDU: ");
@@ -22,18 +32,20 @@ int Send_Modbus_request(char *server_add, uint16_t port, uint8_t *apdu, uint8_t 
     }
     printf("\n"); 
 
+    //create a socket to communicate with server
     int s = socket(PF_INET, SOCK_STREAM, IPPROTO_TCP); //creates a local socket
-    
+    if(s<0) printf("error creating socket\n");
+
     struct sockaddr_in server; 
     server.sin_family = AF_INET;
     server.sin_port = htons(port);
     inet_aton(server_add, &server.sin_addr);
 
-    if(connect(s, (struct sockaddr *)&server, apdu_len+7) ==-1) {
-        printf("unable to connect\n");
+    if(connect(s, (struct sockaddr *)&server, sizeof(server)) == -1) {
+        printf("unable to connect \ts: %d\tapdu_len: %d\n", s, apdu_len);
         return -1;
     }
-    
+
     //sending message to server
     int len_send = send(s, pdu, apdu_len+7, 0);
     if(len_send != apdu_len+7) {
@@ -42,26 +54,37 @@ int Send_Modbus_request(char *server_add, uint16_t port, uint8_t *apdu, uint8_t 
     }
 
     //receiving response
-    int len_recv = recv(s, r_pdu, 5+7, 0);
+    int len_recv = recv(s, buffer, 256, 0);
     if(len_recv >= 0) printf("received %d octets\n", len_recv);
     else printf("Error has occurred\n");
-    
+    //printing received message
     for(int i=0; i<len_recv; i++) {
-        printf(" %x ", r_pdu[i]);
+        printf(" %x ", buffer[i]);
     }
     printf("\n");
 
-    uint8_t *aux_apdu_r = (uint8_t *)calloc(5, sizeof(uint8_t));
+    uint8_t *aux_apdu_r = (uint8_t *)calloc(len_recv-7, sizeof(uint8_t));
 
     //Remove header
-    for(int i=0; i<5; i++) {
-        aux_apdu_r[i] = r_pdu[i+7];
+    for(int i=0; i<len_recv-7; i++) {
+        aux_apdu_r[i] = buffer[i+7];
     }
     *apdu_r = aux_apdu_r; 
 
     return 0;
-    
 }
+
+
+
+
+/****************************************************************************/
+/****************************************************************************/
+/***************************                 ********************************/
+/***************************   SERVER SIDE   ********************************/
+/***************************                 ********************************/
+/****************************************************************************/
+/****************************************************************************/
+
 
 uint16_t Receive_Modbus_request(int fd, uint8_t **apdu, uint8_t *apdu_len, struct sockaddr_in *remote, int *comm_socket) {
     uint8_t buffer[256];
